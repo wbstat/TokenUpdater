@@ -1,0 +1,12 @@
+{
+    "autoload": {
+       "psr-4": {
+           "": [
+               "local/"
+           ]
+       }
+   },
+    "require": {
+        "guzzlehttp/guzzle": "^7.3"
+    }
+}

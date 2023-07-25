@@ -1,0 +1,6 @@
+php_value display_errors 0
+RewriteEngine On
+RewriteBase /
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^v1/(.*)$ api.php?request=$1 [QSA,NC,L]

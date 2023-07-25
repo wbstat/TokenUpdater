@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+	<head>
+	    <meta charset="utf-8">
+	    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	    <meta name="description" content="">
+	    <title>WBStat token updater</title>
+
+		<link href="/assets/dist/css/bootstrap.min.css" rel="stylesheet">
+		<link href="/assets/dist/css/form-validation.css" rel="stylesheet">
+	</head>
+	
+	<body class="bg-light">
+		<div class="container">
+			<div class="py-5 text-center">
+				<h2>WB Token Updater</h2>
+				<p class="lead">WB Token Updater - это интерфейс обновления различных access token (WBToken) для работы с внутренним API на портале seller.wildberries.ru. Для этого нужен refresh token.</p>
+				<p>Получить refresh token можно на портале через инструменты разработчика браузера.<br/>Либо скачав и установив расширение: <a href="https://gitlab.com/vokskela/WBRefreshToken" target="_blank">https://gitlab.com/vokskela/WBRefreshToken</a></p>
+			</div>
+			
+			<form class="needs-validation" id="refresh_form" novalidate>
+
+				<div class="row">
+					<div class="col-md-12">
+						<h5 class="mb-2">Тип токена</h5>
+						<div class="d-block">
+							<div class="custom-control custom-radio">
+								<input id="seller" value="seller" name="token_type" type="radio" class="custom-control-input" checked required>
+								<label class="custom-control-label" for="seller">Обычный токен (seller.wildberries.ru)</label>
+							</div>
+							<div class="custom-control custom-radio">
+								<input id="cmp" value="cmp" name="token_type" type="radio" class="custom-control-input" required>
+								<label class="custom-control-label" for="cmp">Рекламный кабинет (cmp.wildberries.ru)</label>
+							</div>
+							<div class="custom-control custom-radio">
+								<input id="weekly-report" value="weekly-report" name="token_type" type="radio" class="custom-control-input" required>
+								<label class="custom-control-label" for="weekly-report">Финансовые отчеты (seller-weekly-report.wildberries.ru)</label>
+							</div>
+						</div>
+	    			</div>
+				</div>
+				
+				<div class="row">
+					<div class="col-md-12">
+						<h5 class="mb-3 mt-5">Refresh token</h5>
+						<div class="mb-3">
+							<input type="text" class="form-control" id="refresh_token" name="refresh_token" autocomplete="off" required>
+							<div class="invalid-feedback">
+								Сюда нужно ввести refresh_token.
+							</div>
+						</div>
+	    			</div>
+				</div>
+	
+				<div class="row">
+					<div class="col-md-3 mt-3">
+						<button class="btn btn-primary btn-lg btn-block" type="submit">Поехали</button>
+	    			</div>
+				</div>
+				<input type="hidden" name="action" value="get_token"/>
+			</form>
+
+		</div>
+		
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12 mt-5">
+					<div class="result"></div>
+				</div>
+			</div>
+			
+		</div>
+
+
+		<script src="https://yastatic.net/jquery/3.3.1/jquery.min.js"></script>
+		<script src="/assets/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="/assets/dist/js/form-validation.js"></script>
+        <script src="/assets/script.js"></script>
+	</body>
+</html>
