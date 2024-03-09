@@ -2,7 +2,7 @@
 
 WB Token Updater - это интерфейс обновления различных токена **WBTokenV3** и **wbx-validation-key**, которые необходимы для работы с внутренним API на портале seller.wildberries.ru. Для этого нужны данные из cookie **wbx-refresh** и **wbx-seller-device-id**.
 
-Получить wbx-refresh можно на портале через инструменты разработчика браузера. Либо с помощью расширения: https://github.com/wbstat/WBRefreshToken
+Получить **wbx-refresh** можно на портале через инструменты разработчика браузера. Либо с помощью расширения: https://github.com/wbstat/WBRefreshToken
 
 
 # Пример работы
