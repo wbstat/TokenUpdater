@@ -18,16 +18,16 @@ WB Token Updater - это интерфейс обновления различн
 
 Пример запроса:
  
-	"POST",
-	'https://token.wbstat.ru/v1/get_token',
-	[
-		'body' => json_encode(
-			[
-				'token_type' => $token_type,
-				'refresh_token' => $refresh_token
-			]
-		)
-	]
+    "POST",
+    'https://token.wbstat.ru/v1/get_token',
+    [
+        'body' => json_encode(
+            [
+                'token_type' => $token_type,
+                'refresh_token' => $refresh_token
+            ]
+        )
+    ]
 
 
 token_type - один из списка: seller, supply, weekly-report, cmp
