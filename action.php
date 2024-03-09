@@ -9,7 +9,7 @@ switch ($action)
 	case 'get_token':
 		$output 		= array();
 		
-		$token_type 	= @$_POST['token_type'];
+		$device_id 		= @$_POST['device_id'];
 		$refresh_token 	= @$_POST['refresh_token'];
 		
 		if(empty($refresh_token)){
@@ -22,17 +22,19 @@ switch ($action)
 			'POST',
 			'https://token.wbstat.ru/v1/get_token',
 			[
-				'body' => json_encode(['token_type' => $token_type, 'refresh_token' => $refresh_token])
+				'body' => json_encode(['device_id' => trim($device_id), 'refresh_token' => trim($refresh_token)])
 			]
 		);
 
 		$body = $response->getBody();
+
 		$result = json_decode($body, true);
+		
 	
 		$html = "";
 		foreach($result as $key => $val){
 			if($html != ""){
-				$html .= "<br/>";
+				$html .= "<br/><br/>";
 			}
 			$html .= $key . ": " . $val;
 		}

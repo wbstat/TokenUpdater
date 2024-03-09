@@ -19,31 +19,24 @@
 		            "body" => "Error: need refresh_token"
 				);
 			}
-			
-			$token_type = @$this->request['token_type'];
-			
 
-			$check_domains 	= array("seller" => "seller.wildberries.ru", "supply" => "seller-supply.wildberries.ru", "weekly-report" => "seller-weekly-report.wildberries.ru", "cmp" => "cmp.wildberries.ru");
-			$check_domain 	= (array_key_exists($token_type, $check_domains)) ? $check_domains[$token_type] : $check_domains["seller"];
-
+			if(empty($this->request['device_id'])){
+		        return array(
+		            "code" => 400,
+		            "body" => "Error: need device_id"
+				);
+			}
 
 	
-			$portal = new WB_Portal(null, null);
+			$portal = new WB_Portal();
+			
 			$portal->set_refresh_token($this->request['refresh_token']);
 			
+			$portal->set_device_id($this->request['device_id']);
 			
-			switch($token_type){
-				case "seller":
-					$result = $portal->refresh_access_token();
-					break;
-				case "cmp":
-					$result = $portal->refresh_cmp_token();
-					break;
-				default:
-					$result = $portal->refresh_external_token("https://" . $check_domain);
-					break;
-			}
+			$result = $portal->refresh_access_token();
 			
+
 			
 	        return array(
 	            "code" => 200,

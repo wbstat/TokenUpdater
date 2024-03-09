@@ -22,19 +22,11 @@
 
 				<div class="row">
 					<div class="col-md-12">
-						<h5 class="mb-2">Тип токена</h5>
-						<div class="d-block">
-							<div class="custom-control custom-radio">
-								<input id="seller" value="seller" name="token_type" type="radio" class="custom-control-input" checked required>
-								<label class="custom-control-label" for="seller">Обычный токен (seller.wildberries.ru)</label>
-							</div>
-							<div class="custom-control custom-radio">
-								<input id="cmp" value="cmp" name="token_type" type="radio" class="custom-control-input" required>
-								<label class="custom-control-label" for="cmp">Рекламный кабинет (cmp.wildberries.ru)</label>
-							</div>
-							<div class="custom-control custom-radio">
-								<input id="weekly-report" value="weekly-report" name="token_type" type="radio" class="custom-control-input" required>
-								<label class="custom-control-label" for="weekly-report">Финансовые отчеты (seller-weekly-report.wildberries.ru)</label>
+						<h5 class="mb-3 mt-5">Device ID (wbx-seller-device-id)</h5>
+						<div class="mb-3">
+							<input type="text" class="form-control" id="device_id" name="device_id" autocomplete="off" required="required">
+							<div class="invalid-feedback">
+								Сюда нужно ввести wbx-seller-device-id.
 							</div>
 						</div>
 	    			</div>
@@ -42,18 +34,18 @@
 				
 				<div class="row">
 					<div class="col-md-12">
-						<h5 class="mb-3 mt-5">Refresh token</h5>
+						<h5 class="mb-3 mt-4">Refresh token (wbx-refresh)</h5>
 						<div class="mb-3">
-							<input type="text" class="form-control" id="refresh_token" name="refresh_token" autocomplete="off" required>
+							<input type="text" class="form-control" id="refresh_token" name="refresh_token" autocomplete="off" required="required">
 							<div class="invalid-feedback">
-								Сюда нужно ввести refresh_token.
+								Сюда нужно ввести wbx-refresh.
 							</div>
 						</div>
 	    			</div>
 				</div>
 	
 				<div class="row">
-					<div class="col-md-3 mt-3">
+					<div class="col-md-3 mt-5">
 						<button class="btn btn-primary btn-lg btn-block" type="submit">Поехали</button>
 	    			</div>
 				</div>

@@ -3,7 +3,7 @@
 WB Token Updater - это интерфейс обновления различных access token (WBToken) для работы с внутренним API на портале seller.wildberries.ru. Для этого нужен refresh token.
 
 Получить refresh token можно на портале через инструменты разработчика браузера.
-Либо скачав и установив расширение: https://gitlab.com/vokskela/WBRefreshToken
+Либо скачав и установив расширение: https://github.com/wbstat/WBRefreshToken
 
 
 # Пример работы
@@ -23,11 +23,8 @@ WB Token Updater - это интерфейс обновления различн
     [
         'body' => json_encode(
             [
-                'token_type' => $token_type,
+                'device_id' => $device_id,
                 'refresh_token' => $refresh_token
             ]
         )
     ]
-
-
-token_type - один из списка: seller, supply, weekly-report, cmp

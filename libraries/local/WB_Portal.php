@@ -4,7 +4,7 @@
 	class WB_Portal
 	{
 
-		private $supplier_id;
+		private $validation_key;
 
 		private $access_token;
 		
@@ -14,120 +14,111 @@
 		
 		private $refresh_token;
 		
+		private $device_id;
+		
 		private $user_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36";
 		
-		private $device = "Macintosh";
-		
-		private $version = "Google Chrome 114.0";
+
 		
 		
-	    public function __construct($supplier_id, $access_token, $host = 'https://seller.wildberries.ru/')
+	    public function __construct($access_token = "", $validation_key = "", $host = 'https://seller.wildberries.ru/')
 	    {
-	        $this->supplier_id = $supplier_id;
+	        $this->validation_key 	= $validation_key;
 	        
-	        $this->access_token = $access_token;
+	        $this->access_token 	= $access_token;
 	        
 	        $this->host = trim($host, '/') . '/';
 	    }
 
 
 
-		public function refresh_cmp_token()
+		public function get_user_suppliers()
 		{
-			$this->getClient()->request(
-				'OPTIONS',
-				'https://passport.wildberries.ru/api/v2/auth/grant'
-			);
-			
-
-			//Шаг 1
-			$response = $this->getClient()->request(
-				'POST',
-				'https://passport.wildberries.ru/api/v2/auth/grant',
-				[
-					'body' => '{}',
-			        'headers'  => [
-				        'cookie' => "WBToken=".$this->refresh_token,
-				        'content-type' => "application/json",
-				        'origin' => "https://cmp.wildberries.ru",
-				        'referer' => "https://cmp.wildberries.ru/",
-				        'user-agent' => $this->user_agent
-			        ]
-				]
-			);
-			
-			
-			$body = $response->getBody();
-			$json = json_decode($body, true);
-			$tmp_refresh_token = $json['token'];
-
 			$params = array(
-				"device" => $this->device.", ".$this->version,
-				"token" => $tmp_refresh_token,
+				array("method" => "getUserSuppliers", "params" => (object)array(), "id" => "json-rpc_3", "jsonrpc" => "2.0"),
+				//array("method" => "listCountries",  "params" => (object)array(), "id" => "json-rpc_4", "jsonrpc" => "2.0")	
 			);
-			
-			
-			//Шаг 2
-			$response = $this->getClient()->request(
+
+			$response = $this->request(
 				'POST',
-				"https://cmp.wildberries.ru/passport/api/v2/auth/login",
+				'/ns/suppliers/suppliers-portal-core/suppliers',
 				[
 					'body' => json_encode($params),
 			        'headers'  => [
-				        'Cookie' => "WBToken=".$this->refresh_token,
+				        'Cookie' => "WBTokenV3=".$this->access_token."; wbx-validation-key=".$this->validation_key,
+				        'Content-Type' => "application/json"
+			        ]
+				]
+			);
+			return $response;
+		}
+
+	
+
+
+
+		public function upgrade_access_token()
+		{
+			$response = $this->getClient()->request(
+				'POST',
+				'https://seller.wildberries.ru/upgrade-cookie-authv3',
+				[
+					'version' => 2.0,
+			        'headers'  => [
+				        'Authorizev3' => $this->access_token,
+				        'Cookie' => "WBTokenV3=".$this->access_token,
 				        'Content-Type' => "application/json",
-				        'Host' => "cmp.wildberries.ru",
-				        'Origin' => "https://cmp.wildberries.ru",
-				        'Referer' => "https://cmp.wildberries.ru/",
+				        'Origin' => "https://seller.wildberries.ru",
+				        'Referer' => "https://seller.wildberries.ru/",
 				        'User-Agent' => $this->user_agent
 			        ]
 				]
 			);
 			
-				
+			$body = $response->getBody();
+			$json = json_decode($body, true);
+
+			
 			$headers = $response->getHeaders();
-	
-		
+			
 			$cookie 			= (isset($headers['set-cookie'])) ? $headers['set-cookie'][0] : $headers['Set-Cookie'][0];
 			$cookie_data 		= explode("; ", $cookie);
 			$cookie_name_data 	= explode("=", trim($cookie_data[0]));
-			$expire_data 		= explode("=", trim($cookie_data[1]));
 			$AccessToken		= $cookie_name_data[1];
-			$max_age 			= $expire_data[1];
-			$access_expire		= time() + $max_age;
 			
-	
+			$cookie_data 		= explode(";", $AccessToken);
+			
+			$AccessToken 		= $cookie_data[0];
 
 			$upd_data = array(
-				"access_token" => $AccessToken,
-				"access_expire" => date("Y-m-d H:i:s", $access_expire),
-				"access_domain" => "cmp.wildberries.ru"
+				"wb_token_v3" => $AccessToken,
 			);
 			
 			return $upd_data;
-			
 		}
+	
 
 
 
 
-		public function refresh_external_token($domain)
+		public function refresh_access_token()
 		{
-			$this->getClient()->request(
-				'OPTIONS',
-				'https://passport.wildberries.ru/api/v2/auth/grant'
-			);
+			$cookies = [
+				"wbx-seller-device-id=".$this->device_id,
+				"external-locale=ru",
+				"wbx-refresh=".$this->refresh_token
+			];
 			
-			//Шаг 1
+			
+			//echo "Step1 \n";
 			$response = $this->getClient()->request(
 				'POST',
-				'https://passport.wildberries.ru/api/v2/auth/grant',
+				'https://seller-auth.wildberries.ru/auth/v2/auth/slide-v3',
 				[
-					'body' => '{}',
+					'version' => 2.0,
 			        'headers'  => [
-				        'Cookie' => "WBToken=".$this->refresh_token,
+				        'Cookie' => "wbx-seller-device-id=supplier-portal__-ed8048c0-83ba-4adc-a2d2-b7689b127cc8; external-locale=ru; wbx-refresh=".$this->refresh_token,
 				        'Content-Type' => "application/json",
-				        'Host' => "passport.wildberries.ru",
 				        'Origin' => "https://seller.wildberries.ru",
 				        'Referer' => "https://seller.wildberries.ru/",
 				        'User-Agent' => $this->user_agent
@@ -138,251 +129,96 @@
 			
 			$body = $response->getBody();
 			$json = json_decode($body, true);
-			$tmp_refresh_token = $json['token'];
-
-			$params = array(
-				"device" => $this->device,
-				"token" => $tmp_refresh_token,
-				"version" => $this->version
-			);
 			
-			
-			$this->getClient()->request(
-				'OPTIONS',
-				$domain . '/passport/api/v2/auth/login',
-				[
-			        'headers'  => [
-				        'Origin' => "https://seller.wildberries.ru",
-				        'Referer' => "https://seller.wildberries.ru/",
-				        'User-Agent' => $this->user_agent
-			        ]
-				]
-			);			
-
-			//Шаг 2
-			$response = $this->getClient()->request(
-				'POST',
-				$domain . "/passport/api/v2/auth/login",
-				[
-				    'version' => 2.0,
-					'body' => json_encode($params),
-			        'headers'  => [
-				        'Cookie' => "WBToken=".$this->refresh_token,
-				        'Content-Type' => "application/json",
-				        'Origin' => "https://seller.wildberries.ru",
-				        'Referer' => "https://seller.wildberries.ru/",
-				        'User-Agent' => $this->user_agent
-			        ]
-				]
-			);
-			
-				
-			$headers = $response->getHeaders();
+			$payload 			= $json['payload'];
 			
 		
-			$cookie 			= (isset($headers['set-cookie'])) ? $headers['set-cookie'][0] : $headers['Set-Cookie'][0];
-			$cookie_data 		= explode("; ", $cookie);
+			$AccessToken 	= $payload['access_token'];
+			$Sticker 		= $payload['sticker'];
+
+			$headers = $response->getHeaders();
+			
+
+			$response_cookies 	= (isset($headers['set-cookie'])) ? $headers['set-cookie'] : $headers['Set-Cookie'];
 			
 			
+			$RefreshToken = "";
+			$ValidationKey = "";
 			
-			$access_token 	= "";
-			$access_expire 	= "";
-			$access_domain 	= str_replace("https://", "", $domain);
-			
-			foreach($cookie_data as $cookie_block)
+			foreach($response_cookies as $cookie)
 			{
-				$cookie_value_data = explode("=", trim($cookie_block));
-				
-				if(count($cookie_value_data)>1){
-					$cookie_param_name = trim($cookie_value_data[0]);
-					$cookie_param_value = trim($cookie_value_data[1]);
-					
-					switch($cookie_param_name){
-						case "WBToken":
-							$AccessToken = $cookie_param_value;
-						break;
-						case "max-age":
-							$access_expire = time() + $cookie_param_value;
-						break;
-						case "domain":
-							$access_domain = $cookie_param_value;
-						break;
-					}
-					
-				}
-			}
 
-			$upd_data = array(
-				"access_token" => $AccessToken,
-				"access_expire" => date("Y-m-d H:i:s", $access_expire),
-				"access_domain" => $access_domain
-			);
-			
-			return $upd_data;
-			
-		}
-	
-
-
-
-
-		public function refresh_access_token($type = "full")
-		{
-			$this->getClient()->request(
-				'OPTIONS',
-				'https://passport.wildberries.ru/api/v2/auth/grant',
-				[
-			        'version' => 2.0,
-			        'headers'  => [
-				        'Origin' => "https://seller.wildberries.ru",
-				        'Referer' => "https://seller.wildberries.ru/",
-				        'User-Agent' => $this->user_agent
-			        ]
-				]
-			);
-			
-
-			//Шаг 1
-			$response = $this->getClient()->request(
-				'POST',
-				'https://passport.wildberries.ru/api/v2/auth/grant',
-				[
-					'version' => 2.0,
-					'body' => '{}',
-			        'headers'  => [
-				        'Cookie' => "WBToken=".$this->refresh_token,
-				        'Content-Type' => "application/json",
-				        'Origin' => "https://seller.wildberries.ru",
-				        'Referer' => "https://seller.wildberries.ru/",
-				        'User-Agent' => $this->user_agent
-			        ]
-				]
-			);
-			
-			
-			$body = $response->getBody();
-			$json = json_decode($body, true);
-			$tmp_refresh_token = $json['token'];
-
-			$params = array(
-				"device" =>$this->device,
-				"token" => $tmp_refresh_token,
-				"version" => $this->version
-			);
-			
-
-
-			//Шаг 2
-			$response = $this->getClient()->request(
-				'POST',
-				"https://seller.wildberries.ru/passport/api/v2/auth/login",
-				[
-					'body' => json_encode($params),
-			        'headers'  => [
-				        'Content-Type' => "application/json",
-				        'Origin' => "https://seller.wildberries.ru",
-				        'Referer' => "https://seller.wildberries.ru/",
-				        'User-Agent' => $this->user_agent
-			        ]
-				]
-			);
-			
-				
-			$headers = $response->getHeaders();
-	
-		
-			$cookie 			= (isset($headers['set-cookie'])) ? $headers['set-cookie'][0] : $headers['Set-Cookie'][0];
-			$cookie_data 		= explode("; ", $cookie);
-			$cookie_name_data 	= explode("=", trim($cookie_data[0]));
-			$expire_data 		= explode("=", trim($cookie_data[1]));
-			$AccessToken		= $cookie_name_data[1];
-			$max_age 			= $expire_data[1];
-			$access_expire		= time() + $max_age;
-			
-			
-			
-			//Шаг 3
-			$response = $this->getClient()->request(
-				'POST',
-				"https://seller.wildberries.ru/passport/api/v2/auth/grant",
-				[
-					'body' => '{}',
-			        'headers'  => [
-				        'Cookie' => "WBToken=" . $AccessToken,
-				        'Content-Type' => "application/json",
-				        'Origin' => "https://seller.wildberries.ru",
-				        'Referer' => "https://seller.wildberries.ru/",
-				        'User-Agent' => $this->user_agent
-			        ]
-				]
-			);
-			
-
-			$upd_data = array(
-				"access_token" => $AccessToken,
-				"access_expire" => date("Y-m-d H:i:s", $access_expire),
-			);
-
-
-			
-			$body = $response->getBody();
-			$json = json_decode($body, true);
-
-
-			$params['token'] = $json['token'];
-
-
-			$this->getClient()->request(
-				'OPTIONS',
-				'https://passport.wildberries.ru/api/v2/auth/login',
-				[
-					'version' => 2.0,
-			        'headers'  => [
-				        'Origin' => "https://seller.wildberries.ru",
-				        'Referer' => "https://seller.wildberries.ru/",
-				        'User-Agent' => $this->user_agent
-			        ]
-				]
-			);			
-
-			if($type == "full"){
-
-				//Шаг 4;
-				$response = $this->getClient()->request(
-					'POST',
-					"https://passport.wildberries.ru/api/v2/auth/login",
-					[
-						'version' => 2.0,
-						'body' => json_encode($params),
-				        'headers'  => [
-					        'Cookie' => "WBToken=".$this->refresh_token,
-					        'Content-Type' => "application/json",
-					        'Origin' => "https://seller.wildberries.ru",
-					        'Referer' => "https://seller.wildberries.ru/",
-					        'User-Agent' => $this->user_agent
-				        ]
-					]
-				);
-	
-				$headers = $response->getHeaders();
-	
-	
-				$cookie 			= (isset($headers['set-cookie'])) ? $headers['set-cookie'][0] : $headers['Set-Cookie'][0];
 				$cookie_data 		= explode("; ", $cookie);
+
 				$cookie_name_data 	= explode("=", trim($cookie_data[0]));
 				$expire_data 		= explode("=", trim($cookie_data[1]));
-				$RefreshToken		= $cookie_name_data[1];
-				$max_age 			= $expire_data[1];
-				$refresh_expire		= time() + $max_age;
 
+				if($cookie_name_data[0] == "wbx-refresh"){
+					$RefreshToken = $cookie_name_data[1];
+				}
+				
+				if($cookie_name_data[0] == "wbx-validation-key"){
+					$ValidationKey = $cookie_name_data[1];
 
-				$upd_data["refresh_token"] = $RefreshToken;
-				$upd_data["refresh_expire"] = date("Y-m-d H:i:s", $refresh_expire);
+					$max_age 		= $expire_data[1];
+					if(is_numeric($max_age)){
+						$tmp_date		= time() + $max_age;
+						$wbx_expire 	= date("Y-m-d H:i:s", $tmp_date);
+					}else{
+						$tmp_date = new DateTime($max_age);
+						$wbx_expire = $tmp_date->format("Y-m-d H:i:s");
+					}
+				}
 
 			}
+
+
+			$cookies = [
+				"external-locale=ru",
+				"wbx-seller-device-id=".$this->device_id,
+				"wbx-refresh=".$RefreshToken,
+				"wbx-validation-key=".$ValidationKey
+			];
 			
+			$params = [
+				"sticker" => $Sticker
+			];
+
+			
+
+			//echo "Step2 \n";
+			$response = $this->getClient()->request(
+				'POST',
+				'https://seller-auth.wildberries.ru/auth/v2/auth/slide-v3-confirm',
+				[
+					'version' => 2.0,
+					'body' => json_encode($params),
+			        'headers'  => [
+				        'Cookie' => implode("; ", $cookies),
+				        'Content-Type' => "application/json",
+				        'Origin' => "https://seller.wildberries.ru",
+				        'Referer' => "https://seller.wildberries.ru/",
+				        'User-Agent' => $this->user_agent
+			        ]
+				]
+			);
+			
+				
+			$upd_data = array(
+				"wb_token_v3" => $AccessToken,
+				"wbx_refresh" => $RefreshToken,
+				"wbx_validation_key" => $ValidationKey,
+				"expire" => $wbx_expire
+			);
+			
+
 			return $upd_data;
 			
+		}
+
+		public function set_device_id($device_id)
+		{
+			$this->device_id = $device_id;
 		}
 
 
@@ -404,12 +240,17 @@
 	    }
 		
 
-	    protected function request($method, $uri = '', $options = null)
+	    protected function request($method, $uri = '', $options = null, $parseResultAsJson = true)
 	    {
 			try {
-			    $response 			= $this->getClient()->request($method, $uri, $options);
-				$responseBody 		= $response->getBody();
+			    $response = $this->getClient()->request($method, $uri, $options);
+				$responseBody = $response->getBody();
 				$responseContents 	= $responseBody->getContents();
+				$statusCode 		= $response->getStatusCode();
+				
+	            if (!$parseResultAsJson) {
+	                return $responseContents;
+	            }
 
 	            $arr = json_decode($responseContents, true);
 	            if (JSON_ERROR_NONE !== json_last_error()) {
@@ -430,6 +271,7 @@
 		            }
 		            
 		            return $arr;
+		            
 				}
 				return false;				
 			}
