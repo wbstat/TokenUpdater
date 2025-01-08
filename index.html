@@ -60,10 +60,52 @@
 					<div class="result"></div>
 				</div>
 			</div>
+		</div>
+        
+        <hr/>
+
+		<div class="container">
+			<div class="pt-5 text-center">
+				<h2>WB API Token Checker</h2>
+				<p>Проверяем уровни доступа токена для API</p>
+			</div>
 			
+			<form class="needs-validation" id="token_form" novalidate>
+
+				<div class="row">
+					<div class="col-md-12">
+						<h5 class="mb-3">WB API Token</h5>
+						<div class="mb-3">
+							<input type="text" class="form-control" id="wb_api_token" name="wb_api_token" autocomplete="off" required="required">
+							<div class="invalid-feedback">
+								Сюда нужно ввести WB API Token.
+							</div>
+						</div>
+	    			</div>
+				</div>
+				
+				<div class="row">
+					<div class="col-md-3 mt-5">
+						<button class="btn btn-primary btn-lg btn-block" type="submit">Проверить</button>
+	    			</div>
+				</div>
+				<input type="hidden" name="action" value="get_api_token_details"/>
+			</form>
+
 		</div>
 
-
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12 mt-5 mb-5">
+					<div class="result_token"></div>
+				</div>
+			</div>
+		</div>
+        
+        <br/>
+        <br/>
+        <br/>
+		
 		<script src="https://yastatic.net/jquery/3.3.1/jquery.min.js"></script>
 		<script src="/assets/dist/js/bootstrap.bundle.min.js"></script>
         <script src="/assets/dist/js/form-validation.js"></script>
