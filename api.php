@@ -43,7 +43,24 @@
 	            "body" => $result
 			);
 		}
-	
+
+		protected function get_api_token_details()
+		{
+			
+			if(empty($this->request['wb_api_token'])){
+		        return array(
+		            "code" => 400,
+		            "body" => "Error: Need  API token"
+				);
+			}
+
+            $token_details = WB_Token::decode_token($this->request['wb_api_token']);
+
+	        return array(
+	            "code" => 200,
+	            "body" => $token_details
+			);
+		}	
 	
 	}
 	

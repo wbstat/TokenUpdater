@@ -117,7 +117,7 @@
 				[
 					'version' => 2.0,
 			        'headers'  => [
-				        'Cookie' => "wbx-seller-device-id=supplier-portal__-ed8048c0-83ba-4adc-a2d2-b7689b127cc8; external-locale=ru; wbx-refresh=".$this->refresh_token,
+				        'Cookie' => "wbx-seller-device-id=".$this->device_id."; external-locale=ru; wbx-refresh=".$this->refresh_token,
 				        'Content-Type' => "application/json",
 				        'Origin' => "https://seller.wildberries.ru",
 				        'Referer' => "https://seller.wildberries.ru/",
@@ -126,10 +126,11 @@
 				]
 			);
 			
-			
+            
 			$body = $response->getBody();
 			$json = json_decode($body, true);
 			
+
 			$payload 			= $json['payload'];
 			
 		
@@ -140,8 +141,8 @@
 			
 
 			$response_cookies 	= (isset($headers['set-cookie'])) ? $headers['set-cookie'] : $headers['Set-Cookie'];
-			
-			
+
+
 			$RefreshToken = "";
 			$ValidationKey = "";
 			
@@ -151,7 +152,14 @@
 				$cookie_data 		= explode("; ", $cookie);
 
 				$cookie_name_data 	= explode("=", trim($cookie_data[0]));
-				$expire_data 		= explode("=", trim($cookie_data[1]));
+                
+                foreach($cookie_data as $cookie_arr)
+                {
+                    $cookie_arr_data = explode("=", trim($cookie_arr));
+                    if($cookie_arr_data[0] == "Expires"){
+    					$max_age = $cookie_arr_data[1];                        
+                    }
+                }
 
 				if($cookie_name_data[0] == "wbx-refresh"){
 					$RefreshToken = $cookie_name_data[1];
@@ -160,7 +168,6 @@
 				if($cookie_name_data[0] == "wbx-validation-key"){
 					$ValidationKey = $cookie_name_data[1];
 
-					$max_age 		= $expire_data[1];
 					if(is_numeric($max_age)){
 						$tmp_date		= time() + $max_age;
 						$wbx_expire 	= date("Y-m-d H:i:s", $tmp_date);

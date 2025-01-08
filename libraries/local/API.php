@@ -24,7 +24,7 @@
 			$this->headers = getallheaders();
 	        switch ($this->method) {
 	            case 'POST':
-	                if(strstr($this->headers['Content-Type'], "application/x-www-form-urlencoded")){
+	                if(isset($this->headers['Content-Type']) && strstr($this->headers['Content-Type'], "application/x-www-form-urlencoded")){
 		                $this->request = $this->_prepare_vars($_POST);
 	                }else{
 		                $entityBody = file_get_contents('php://input');
